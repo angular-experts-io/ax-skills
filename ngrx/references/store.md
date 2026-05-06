@@ -1,0 +1,1 @@
+global stor registration and immutbaility checks
