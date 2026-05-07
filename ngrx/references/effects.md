@@ -2,19 +2,19 @@
 
 NgRx effects are a dedicated place (and concept) for implementing EVERY type of side effect in our application, for example:
 
-- Backend requests (HTTP, WebSocket, etc)
+- Backend requests (HTTP, WebSocket, etc.)
 - Deep linking (reflecting state to URL, consuming state from URL)
 - Navigation (e.g. as a result of some processing, save data then navigate, ...)
-- Synchronization of state into browser storage (local storage, session storage, etc)
+- Synchronization of state into browser storage (local storage, session storage, etc.)
 - Opening of new browser windows or tabs
 - Programmatic scrolling
 
 ## General principles
 
-1. Effects should contain as LITTLE logic as possible, try to move as much logic into services and selectors and keep effects focused purely on the orchestration
-2. Effect should only result in ONE (or zero) event returned (it could be different events, eg success, failure or other, but ONLY one can be returned)
-3. ONE effect should implement only ONE side-effect (focused, short snippet) and if necessry subsequent effects will be triggered by the result event of the previous effect.
-4. For complex async processing, multistep processes with chain of short effects, it's preferable to extract it into a dedicated file in the same state slice folder with a descriptive name 
+1. Effects should contain as LITTLE logic as possible. Try to move as much logic into services and selectors and keep effects focused purely on the orchestration.
+2. Effects should only result in ONE (or zero) event returned (it could be different events, e.g. success, failure or other, but ONLY one can be returned).
+3. ONE effect should implement only ONE side effect (focused, short snippet) and, if necessary, subsequent effects will be triggered by the result event of the previous effect.
+4. For complex async processing, multi-step processes with a chain of short effects, it's preferable to extract it into a dedicated file in the same state slice folder with a descriptive name.
 
 ## Effect architecture
 
@@ -47,28 +47,28 @@ export class <Key>Effects {
 }
 ```
 
-## Backend Requests (HTTP, WebSocket, etc)
+## Backend Requests (HTTP, WebSocket, etc.)
 
-Specifics of how to perform request should be encapsulated in a separate service which is located in the same lazy feature folder (or "domain" folder when in `core/`)
+Specifics of how to perform a request should be encapsulated in a separate service which is located in the same lazy feature folder (or "domain" folder when in `core/`).
 
 ### Loading of data (read)
 
-When loading data prefer following RxJs flattening operators based on the use case
+When loading data, prefer the following RxJS flattening operators based on the use case:
 
 `switchMap` - loading data based on some variable like `id` or `query` (cancels previous loading to only get the latest response)
-`exhaustMap` - loading data which always return the same collection, in that case we can block other loading attempts if the previous one is still loading, for example loading of all products, user profile, etc
+`exhaustMap` - loading data which always returns the same collection. In that case, we can block other loading attempts if the previous one is still loading, for example loading of all products, user profile, etc.
 
 ### Saving data (create, update, delete)
 
-When saving data prefer following RxJs flattening operators based on the use case
+When saving data, prefer the following RxJS flattening operators based on the use case:
 
-`concatMap` - saving data where order matters, eg backend assigns a timestamp, and we want to make sure that the timestamps are in correct order
+`concatMap` - saving data where order matters, e.g. backend assigns a timestamp, and we want to make sure that the timestamps are in correct order
 `mergeMap` - saving data where order does not matter, better performance
 
-### Handling result of async operations that can fail (e.g. HTTP requests)
+### Handling the result of async operations that can fail (e.g. HTTP requests)
 
 Always use `mapResponse()` method from the `@ngrx/operators` package, the operator MUST be used in the nested `.pipe()` 
-because otherwise it will complete (shut down) the effect stream after first handled error which is always wrong.
+because otherwise it will complete (shut down) the effect stream after the first handled error, which is always wrong.
 
 ```ts
 loadItems = createEffect(() => {
@@ -88,24 +88,68 @@ loadItems = createEffect(() => {
 
 ## Error handling
 
-always in second pipoe / nested stream
+Make sure that the `mapResponse` operator is used in the nested `.pipe()` of the async operation, otherwise the effect stream will complete (shut down) after the first handled error, which is always wrong.
 
 ## Deep linking
 
+Effects are the right place to implement deep linking in our application (syncing of the client state, e.g. filters,
+pagination, etc.) to the URL query params.
+
 ### Reflecting state to URL
+
+```ts
+reflectStateToUrl = createEffect(() => {
+  return this.#events.pipe(
+    ofType(
+      <Key>Events.someEventWhichAffectsSyncedClientStateA
+      <Key>Events.someEventWhichAffectsSyncedClientStateB
+    ),
+    // always select all relevant client state props using custom selector
+    // use undefined as an empty value instead of '' (null, false, ...) so the query params fall out completely when not relevant
+    concatLatestFrom(() => this.#store.select(selectClientStateForQueryParams)),
+    tap(([, queryParams]) => {
+      this.#router.navigate([], {
+        queryParams: {
+          // spread all relevant client state props into query params
+          ...queryParams
+        },
+        queryParamsHandling: 'merge', // merge with other existing query params in the URL
+      });
+    })
+  );
+}, { dispatch: false });
+```
 
 ### Consuming state from URL
 
+Only consume state from the URL on the relevant container component `init` event to prevent an infinite loop of URL state syncing.
+
+```ts
+consumeInitialClientStateFromUrl = createEffect(() => {
+  return this.#events.pipe(
+    ofType(SomeContainerEvents.init),
+    // use a custom selector which in turn uses router-store selectors (or selector factories)
+    // to retrieve (and parse) relevant query params (e.g. "null" => null, "undefined" => undefined, "true" => true, "1" => 1,...)
+    concatLatestFrom(() => this.#store.select(selectInitialClientStateFromUrl)),
+    filter(([, initialClientStateFromUrl ]) => Object.keys(initialClientStateFromUrl).length > 0),
+    map(([, initialClientStateFromUrl ]) =>
+      <Key>Events.initialClientStateFromUrlDetected({ initialClientStateFromUrl })
+    )
+  );
+});
+
+```
+
 ## Navigation
 
-## Retrieving additional state which was NOT delivered by an event payload
+## Retrieving additional state that was NOT delivered by an event payload
 
-Effects are often triggered by events, and events have payloads, which are often sufficient for the effect execution,
+Effects are often triggered by events, and events have payloads, which are often sufficient for effect execution,
 but sometimes we need to retrieve some additional state from the state slices using selectors
 
 Always use `concatLatestFrom()` operator from the `@ngrx/operators` package
 
-Never select from multiple selectors, if you need to select from multiple selectors, create a new selector which combines the needed state from the multiple selectors and select from that single selector in the effect
+Never select from multiple selectors. If you need to select from multiple selectors, create a new selector which combines the needed state from the multiple selectors and select from that single selector in the effect.
 
 ```ts
 someEffect = createEffect(() => {

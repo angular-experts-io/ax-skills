@@ -1,7 +1,10 @@
 # Selectors
 
-Try to minimize the number of selectors in the application, state slice already exposes its full state based on the state slice boilerplate and
+Try to minimize the number of selectors in the application. The state slice already exposes its full state based on the state slice boilerplate and
 it might be possible to add derived state to the state slice selectors if necessary.
+
+DO NOT introduce unnecessary pluck selectors that just pluck a single property from the state slice
+to compose it with other selectors, prefer composing with the base state slice selector instead!
 
 ## Derived state
 
@@ -28,7 +31,6 @@ export const selectSomeView = createSelector(
   })
 )
 ```
-
 ## Consuming state in the container component
 
 
@@ -48,4 +50,15 @@ export class SomeContainerComponent {
 
 ## Testing
 
-// TODO
+When testing selectors, use minimal mocks and assert only the output of actual logic, e.g. derived state calculations.
+
+```ts
+describe('selectSomeView', () => {
+  it('should calculate someDerivedProp correctly', () => {
+    const stateA = { /* ... */ };
+    const stateB = { /* ... */ };
+    const result = selectSomeView.projector(stateA, stateB);
+    expect(result.someDerivedProp).toEqual(/* expected value based on stateA and stateB */);
+  });
+});
+```

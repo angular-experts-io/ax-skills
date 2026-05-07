@@ -1,6 +1,6 @@
 # Consuming Observable Data Sources
 
-Sometimes, we need to consume data from services that we're not in control of (e.g. from a library, another team, etc)
+Sometimes, we need to consume data from services that we're not in control of (e.g. from a library, another team, etc.)
 
 Such services often deliver data as RxJS `Observable` or new Angular `Signal`, but these do not compose well with NgRx selectors
 
