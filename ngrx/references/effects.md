@@ -47,13 +47,23 @@ export class <Key>Effects {
 }
 ```
 
-
 ## Backend Requests (HTTP, WebSocket, etc)
 
+Specifics of how to perform request should be encapsulated in a separate service which is located in the same lazy feature folder (or "domain" folder when in `core/`)
+
 ### Loading of data (read)
-switchMap vs exhaustMap
+
+When loading data prefer following RxJs flattening operators based on the use case
+
+`switchMap` - loading data based on some variable like `id` or `query` (cancels previous loading to only get the latest response)
+`exhaustMap` - loading data which always return the same collection, in that case we can block other loading attempts if the previous one is still loading, for example loading of all products, user profile, etc
 
 ### Saving data (create, update, delete)
+
+When saving data prefer following RxJs flattening operators based on the use case
+
+`concatMap` - saving data where order matters, eg backend assigns a timestamp, and we want to make sure that the timestamps are in correct order
+`mergeMap` - saving data where order does not matter, better performance
 
 ### Handling result of async operations that can fail (e.g. HTTP requests)
 
