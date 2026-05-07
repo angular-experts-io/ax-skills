@@ -1,25 +1,29 @@
 # Effects
 
-NgRx effects are a dedicated place (and cocnept) for implementing EVERY type of side effect in our application, for example:
+NgRx effects are a dedicated place (and concept) for implementing EVERY type of side effect in our application, for example:
 
 - Backend requests (HTTP, WebSocket, etc)
 - Deep linking (reflecting state to URL, consuming state from URL)
-- Navigation (eg as a result of some processing, save data then navigate, ...)
+- Navigation (e.g. as a result of some processing, save data then navigate, ...)
 - Synchronization of state into browser storage (local storage, session storage, etc)
 - Opening of new browser windows or tabs
 - Programmatic scrolling
 
+## General principles
+
+1. Effects should contain as LITTLE logic as possible, try to move as much logic into services and selectors and keep effects focused purely on the orchestration
+2. Effect should only result in ONE (or zero) event returned (it could be different events, eg success, failure or other, but ONLY one can be returned)
+3. ONE effect should implement only ONE side-effect (focused, short snippet) and if necessry subsequent effects will be triggered by the result event of the previous effect.
+4. For complex async processing, multistep processes with chain of short effects, it's preferable to extract it into a dedicated file in the same state slice folder with a descriptive name 
 
 ## Effect architecture
 
-Effects should contain as LITTLE logic as possible, try to move as much logic into services and selectors and keep effects focused purely on the orchestration
-
 ```ts
-@Injectbale()
+@Injectable()
 export class <Key>Effects {
   #events = inject(Actions);
   
-  // effects which dispatch result events
+  // effects that dispatch result events
   effectWhichDoesSomething = createEffect(() => {
     // always use explicit return
     return this.#events.pipe( 
@@ -47,13 +51,14 @@ export class <Key>Effects {
 ## Backend Requests (HTTP, WebSocket, etc)
 
 ### Loading of data (read)
-switchamp vs exhaust map
+switchMap vs exhaustMap
 
 ### Saving data (create, update, delete)
 
-### Handling result of async operations which can fail (eg HTTP requests)
+### Handling result of async operations that can fail (e.g. HTTP requests)
 
-Always use `mapResponse()` method from the `@ngrx/operators` package
+Always use `mapResponse()` method from the `@ngrx/operators` package, the operator MUST be used in the nested `.pipe()` 
+because otherwise it will complete (shut down) the effect stream after first handled error which is always wrong.
 
 ```ts
 loadItems = createEffect(() => {
@@ -71,6 +76,10 @@ loadItems = createEffect(() => {
 
 ```
 
+## Error handling
+
+always in second pipoe / nested stream
+
 ## Deep linking
 
 ### Reflecting state to URL
@@ -81,10 +90,10 @@ loadItems = createEffect(() => {
 
 ## Retrieving additional state which was NOT delivered by an event payload
 
-Effects are often triggered by events and events have payload, which is often sufficient for the effect execution, 
+Effects are often triggered by events, and events have payloads, which are often sufficient for the effect execution,
 but sometimes we need to retrieve some additional state from the state slices using selectors
 
-Always use `concatLatestFrom()` operator from  `@ngrx/operators` package
+Always use `concatLatestFrom()` operator from the `@ngrx/operators` package
 
 Never select from multiple selectors, if you need to select from multiple selectors, create a new selector which combines the needed state from the multiple selectors and select from that single selector in the effect
 

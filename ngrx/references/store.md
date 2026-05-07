@@ -2,7 +2,7 @@
 
 The global store is registered only once in the Angular root injector
 
-This is often in the `core.ts` in the `providers: []` array, if not found, then register in the following locations ordered by the preference
+This is often in the `core.ts` in the `providers: []` array; if not found, then register in the following locations ordered by preference
 
 1. `core.ts`
 2. `core.module.ts`
@@ -12,7 +12,7 @@ This is often in the `core.ts` in the `providers: []` array, if not found, then 
 
 ## Registering the store
 
-Always register the store as WITHOUT reducers
+Always register the store WITHOUT reducers
 
 
 ```ts
@@ -31,7 +31,7 @@ export function provideCore() {
         strictStateSerializability: true,
         strictActionTypeUniqueness: true,
 
-        // ONLY for apps which use zone based change detection (esle skip)
+        // ONLY for apps which use zone-based change detection (else skip)
         // check for zone.js import in polyfills.ts, angular.json or main.ts
         strictActionWithinNgZone: true
       }
@@ -45,7 +45,7 @@ export function provideCore() {
     provideState(sliceBFeature),
     // ...
     
-    provideEffect([SliceAEffects, SliceBEffects, ...])
+    provideEffects([SliceAEffects, SliceBEffects, ...])
   ]
 }
 ```

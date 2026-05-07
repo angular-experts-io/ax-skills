@@ -1,14 +1,14 @@
 # Consuming Observable Data Sources
 
-Sometimes, we need to consume data from services which we're not in control of (eg from library, other team, etc)
+Sometimes, we need to consume data from services that we're not in control of (e.g. from a library, another team, etc)
 
-Such services often deliver data as RxJs `Observable` or new Angular `Signal` but these do not compose well with NgRx selectors
+Such services often deliver data as RxJS `Observable` or new Angular `Signal`, but these do not compose well with NgRx selectors
 
-**We always want to turn every data source into a NgRx selector because that way it becomes SYNC and universaily composable with other selectors**
+**We always want to turn every data source into an NgRx selector because that way it becomes SYNC and universally composable with other selectors**
 
 ## Creating a thing state slice
 
-To solve this interface impedance, create a thin state slice (follow the standard rules for the state slices for its location, eg core or lazy feature)
+To solve this interface impedance, create a thin state slice (follow the standard rules for the state slices for its location, e.g. core or lazy feature)
 
 ## Observable data source
 
@@ -29,7 +29,7 @@ export class SomeEffects {
 
     syncSome = createEffect(() => {
         return this.#someService.getSome().pipe(
-            map(some => SomeEvents.someChanged({ some })), // use JSON cloning ONLY if the data is NOT seriazable
+            map(some => SomeEvents.someChanged({ some })), // use JSON cloning ONLY if the data is NOT serializable
         );
     });
 }
@@ -54,7 +54,7 @@ export class SomeEffects {
 
     syncSome = createEffect(() => {
         return toObservable(this.#someService.some).pipe(
-            map(some => SomeEvents.someChanged({ some })), // use JSON cloning ONLY if the data is NOT seriazable
+            map(some => SomeEvents.someChanged({ some })), // use JSON cloning ONLY if the data is NOT serializable
         );
     });
 }

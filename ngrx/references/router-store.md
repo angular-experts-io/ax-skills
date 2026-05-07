@@ -77,7 +77,7 @@ export const selectProductView = createSelector(
 ```
 
 Effects should also use router selectors through the Store, for example with `concatLatestFrom`. Do not inject `ActivatedRoute` into effects,
-eg `concatLatestFrom(this.store.select(selectProductId))` 
+e.g. `concatLatestFrom(this.store.select(selectProductId))`
 
 ## Checklist
 

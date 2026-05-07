@@ -1,6 +1,6 @@
 # State slice
 
-Always remove all comments from the provided code examples in this file (they are jsut impl hints for you), only exception is grouping of the state types in `State` interface
+Always remove all comments from the provided code examples in this file (they are just impl hints for you); the only exception is grouping of the state types in `State` interface
 
 State slice is an isolated part of the state registered in the NgRx global store under a unique name (property)
 Each state slice has to have a unique KEY!
@@ -48,9 +48,9 @@ import { <Key>Events } from './<key>.events';
 export const <key>FeatureKey = '<key>';
 
 export interface State {
-  // use followign categories when implementing state properties, try to keep them as flat as possible
+  // use following categories when implementing state properties, try to keep them as flat as possible
   // persistent state (entity, loading, error, ...)
-  // when storing entities, use descriptive name for the array, eg `products` instead of `items`
+  // when storing entities, use descriptive name for the array, e.g. `products` instead of `items`
   
   // client state (filters, sorting, pagination, ...)
   
@@ -58,7 +58,7 @@ export interface State {
 }
 
 export const initialState: State = {
-  // implement all properties from the State interface and provide initial values (usualy empty arrays, '', undefined, ...)
+  // implement all properties from the State interface and provide initial values (usually empty arrays, '', undefined, ...)
 };
 
 export const reducer = createReducer(
@@ -70,7 +70,7 @@ export const reducer = createReducer(
     // whatever should change
   })),
   
-  // make sure to provide single handler for multiple events if they have the same payload nad update the state in the same way
+  // make sure to provide single handler for multiple events if they have the same payload and update the state in the same way
 );
 
 export const <key>Feature = createFeature({
@@ -86,7 +86,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { <Key>Events } from './<key>.events';
 
-Injectable()
+@Injectable()
 export class <Key>Effects
 {
   #events = inject(Actions);
@@ -120,14 +120,14 @@ Prefer single model file even if it contains multiple interfaces.
 
 ## Where to implement them
 
-Every state slice belongs to an Angular inejctor, global state slices are registered in `core` (eg `core.ts`) after the `provideStore()` call.
-State slices that belong to a lazy laoded feature (becasue they are only used by a single lazy loaded feature) should be registered in the feature injector (usualy `<some-feature>.routes.ts`) file, if it lacks `providers: []` array, then introduce a wrapper empty route with `path: ''`, and `providers: []` and move all existing routes into its `children: []` array.
+Every state slice belongs to an Angular injector, global state slices are registered in `core` (e.g. `core.ts`) after the `provideStore()` call.
+State slices that belong to a lazy loaded feature (because they are only used by a single lazy loaded feature) should be registered in the feature injector (usually `<some-feature>.routes.ts`) file, if it lacks `providers: []` array, then introduce a wrapper empty route with `path: ''`, and `providers: []` and move all existing routes into its `children: []` array.
 
 
 ## Registering state slices
 
 Always use `provideState(<key>Feature)`, to register the state slice
-Always use `provideEffects([<Key>Effects, <Key2>Effects])`, there is only one provideEffects per injector (eg core, or lazy loaded feature)
+Always use `provideEffects([<Key>Effects, <Key2>Effects])`, there is only one provideEffects per injector (e.g. core, or lazy loaded feature)
 
 ### Cleanup (experimental injector auto cleanup)
 
@@ -141,12 +141,10 @@ If you realize that you need the WHOLE state slice which is located in a lazy fe
 
 If you realize that you need only a part of the state slice, then create a new state slice in the `core/` (and register it in `core.ts` file) and
 
-1. it should have unique key, eg if key was `product` and you only extract entity-related state properties, then  key could be `product-entity`
+1. it should have a unique key, e.g. if key was `product` and you only extract entity-related state properties, then key could be `product-entity`
 2. move only related events, effects and selectors into the new state slice
 3. use the new selectors to deliver the extracted state into to the selectors of the original state slice
-4. emit the necessary events from the new state slice to the original state slice (eg to trigger loading of the entities)
-
-
+4. emit the necessary events from the new state slice to the original state slice (e.g. to trigger loading of the entities)
 
 
 

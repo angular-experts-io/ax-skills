@@ -5,13 +5,13 @@ it might be possible to add derived state to the state slice selectors if necess
 
 ## Derived state
 
-Derived state that can be derived from existing state slices should always be derived in some sector instead of storing it in the state.
+Derived state that can be derived from existing state slices should always be derived in some selector instead of storing it in the state.
 
 ## Dedicated selector for container components
 
-Container components often need to access state from more than one state slice and also often need derived state that it's specific to the given container component.
+Container components often need to access state from more than one state slice and also often need derived state that is specific to the given container component.
 
-The selector should live next to the component so when we have component called `SomeComponent` in the `some.component.ts` file ( or sometimes just `some.ts` ) 
+The selector should live next to the component, so when we have a component called `SomeComponent` in the `some.component.ts` file (or sometimes just `some.ts`),
 create a selector file called `some.selectors.ts` and put the selector there.
 
 ```ts
@@ -32,7 +32,7 @@ export const selectSomeView = createSelector(
 ## Consuming state in the container component
 
 
-Container component should consume state using `selectSignal()` method of the store
+Container components should consume state using `selectSignal()` method of the store
 
 ```ts
 @Component({
