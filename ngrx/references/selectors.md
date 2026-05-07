@@ -1,8 +1,5 @@
 # Selectors
 
-
-// TODO immutable updates
-
 Try to minimize the number of selectors in the application, state slice already exposes its full state based on the state slice boilerplate and
 it might be possible to add derived state to the state slice selectors if necessary.
 

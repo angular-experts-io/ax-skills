@@ -1,10 +1,42 @@
 # Effects
 
+## Effect architecture
 
-## Handling result of the backend requests
 
-TODO mapResponse 
+## Backend Requests (HTTP, WebSocket, etc)
 
+### Loading of data (read)
+switchamp vs exhaust map
+
+### Saving data (create, update, delete)
+
+### Handling result of async operations which can fail (eg HTTP requests)
+
+Always use `mapResponse()` method from the `@ngrx/operators` package
+
+```ts
+loadItems = createEffect(() => {
+  return this.#events.pipe(
+    ofType(<Key>Events.loadItemsTriggered),
+    switchMap(() => this.someService.getItems().pipe(
+      mapResponse({
+        next: products => ProductApiEvents.productsLoadedSuccess({ products }),
+        error: (error: HttpErrorResponse) => ProductApiEvents.productLoadedFailure({ error: error.message })
+      }),
+    ))
+  );
+})
+
+
+```
+
+## Deep linking
+
+### Reflecting state to URL
+
+### Consuming state from URL
+
+## Navigation
 
 ## Retrieving additional state from state slices
 
