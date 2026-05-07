@@ -123,3 +123,6 @@ someEffect = createEffect(() => {
 ### Selector data change as an event
 
 ### Feature independent reloading of data based on path params
+
+
+## Testing

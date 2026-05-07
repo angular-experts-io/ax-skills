@@ -45,3 +45,7 @@ export class SomeContainerComponent {
   view = this.#store.selectSignal(selectSomeContainerView);
 }
 ```
+
+## Testing
+
+// TODO
