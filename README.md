@@ -9,9 +9,11 @@ A curated collection of mostly handcrafted skills encoding more than a decade of
 ### [NgRx](ngrx/SKILL.md)
 
 Guidance for implementing and modifying NgRx state management in Angular applications.
+Predictable state. Scalable apps. Composable, performant, and built for Angular.
 
 Handles:
 
+- State management architecture, read/write boundaries, and container/UI component responsibilities.
 - State modeling, serializability, and error modeling.
 - Global store setup and runtime checks.
 - State slices, lazy feature boundaries, and slice extraction.
@@ -20,3 +22,5 @@ Handles:
 - Effects for backend requests, navigation, deep linking, URL synchronization, scrolling, and route-driven data loading.
 - NgRx router-store registration and router selector factories.
 - Observable data sources exposed through selectors.
+
+![NgRx Skill overview](ngrx/ngrx-skill.jpg)
