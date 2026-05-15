@@ -15,6 +15,7 @@ Use this skill for NgRx state management work in Angular applications.
 
 ## References
 
+- For the state management architecture and read/write boundaries, read [architecture.md](references/architecture.md).
 - For state serializability, persistent state, client state, transient state, local UI state, and error modeling, read [state-modeling.md](references/state-modeling.md).
 - For registering and configuring runtime checks for the global store, read [store.md](references/store.md).
 - For creating state slices, sharing existing state slices between isolated lazy features by extracting them to core, and splitting state slices, read [state-slice.md](references/state-slice.md).

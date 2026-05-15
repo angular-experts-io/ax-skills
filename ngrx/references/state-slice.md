@@ -136,13 +136,70 @@ then make sure all effects in the lazy loaded features are auto unsubscribed wit
 
 ## Splitting state slices
 
-If you realize that you need the WHOLE state slice which is located in a lazy feature in another lazy feature, then you can extract it into `core/` and move its registration into the `core.ts` file.
+If another (sibling) feature needs to access all state from another lazy feature state slice, then extract that whole lazy state slice folder (events, reducer, selectors, effects) into `core/` and move its registration into the `core.ts` file.
 
-If you realize that you need only a part of the state slice, then create a new state slice in the `core/` (and register it in the `core.ts` file) and
+If you realize that you need only a part of the state properties of a sibling lazy feature state slice, then create a new state slice in the `core/` (and register it in the `core.ts` file) and
 
 1. it should have a unique key, e.g. if key was `product` and you only extract entity-related state properties, then key could be `product-entity`
 2. move only related events, effects, and selectors into the new state slice
 3. use the new selectors to deliver the extracted state into the selectors of the original state slice
 4. emit the necessary events from the new state slice to the original state slice (e.g. to trigger loading of the entities)
 
+### Example: extracting entity state to core
 
+Before extraction, lazy `product-state/` owns both entity state and client state:
+
+```ts
+export interface State {
+  // persistent state
+  products: Product[];
+  loading: boolean;
+  error: UiError | undefined;
+
+  // client state
+  searchQuery: string;
+  currentPage: number;
+  pageSize: number;
+  sorting: ProductSorting;
+}
+```
+
+If sibling features need only products, loading, and error, create `core/product-entity-state/`:
+
+```ts
+export const productEntityFeatureKey = 'product-entity';
+
+export interface State {
+  // persistent state
+  products: Product[];
+  loading: boolean;
+  error: UiError | undefined;
+}
+```
+
+Keep only product page client state in lazy `product-state/`:
+
+```ts
+export interface State {
+  // client state
+  searchQuery: string;
+  currentPage: number;
+  pageSize: number;
+  sorting: ProductSorting;
+}
+```
+
+Use the core entity selector in the original lazy feature selector:
+
+```ts
+export const selectProductView = createSelector(
+  selectProductEntityState,
+  selectProductState,
+  (entityState, productState) => ({
+    ...entityState,
+    ...productState,
+  }),
+);
+```
+
+Register `productEntityFeature` and `ProductEntityEffects` in `core.ts`; keep `productFeature` and product page effects in the lazy feature injector.

@@ -11,8 +11,8 @@ NgRx effects are a dedicated place (and concept) for implementing EVERY type of 
 
 ## General principles
 
-1. Effects should contain as LITTLE logic as possible. Try to move as much logic into services and selectors and keep effects focused purely on the orchestration.
-2. Effects should only result in ONE (or zero) event returned (it could be different events, e.g. success, failure or other, but ONLY one can be returned).
+1. Keep effects orchestration-only. Put calculations in selectors and I/O/business logic in services.
+2. Effects emit ONE event per emission. It can be a different event per branch, e.g. success or failure, but only one event is emitted as the result. Or zero events if it's a pure side-effect.
 3. ONE effect should implement only ONE side effect (focused, short snippet) and, if necessary, subsequent effects will be triggered by the result event of the previous effect.
 4. For complex async processing, multi-step processes with a chain of short effects, it's preferable to extract it into a dedicated file in the same state slice folder with a descriptive name.
 
@@ -76,14 +76,12 @@ loadItems = createEffect(() => {
     ofType(<Key>Events.loadItemsTriggered),
     switchMap(() => this.someService.getItems().pipe(
       mapResponse({
-        next: products => ProductApiEvents.productsLoadedSuccess({ products }),
-        error: (error: HttpErrorResponse) => ProductApiEvents.productLoadedFailure({ error: error.message })
+        next: (products) => ProductApiEvents.productsLoadedSuccess({ products }),
+        error: (error: HttpErrorResponse) => ProductApiEvents.productLoadedFailure({ error: error.message }),
       }),
     ))
   );
-})
-
-
+});
 ```
 
 ## Error handling
@@ -101,8 +99,8 @@ pagination, etc.) to the URL query params.
 reflectStateToUrl = createEffect(() => {
   return this.#events.pipe(
     ofType(
-      <Key>Events.someEventWhichAffectsSyncedClientStateA
-      <Key>Events.someEventWhichAffectsSyncedClientStateB
+      <Key>Events.someEventWhichAffectsSyncedClientStateA,
+      <Key>Events.someEventWhichAffectsSyncedClientStateB,
     ),
     // always select all relevant client state props using custom selector
     // use undefined as an empty value instead of '' (null, false, ...) so the query params fall out completely when not relevant
@@ -158,7 +156,8 @@ someEffect = createEffect(() => {
     concatLatestFrom(() => this.#store.select(selectAllNecessaryStateForEffectExecution)),
     concatMap(([event, necessaryState]) => {
       // implement logic here using event and someStateA
-    }) 
+    })
+  );
 });
 ```
 

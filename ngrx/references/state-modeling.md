@@ -32,7 +32,7 @@ sorting: 'asc' | 'desc';
 
 ### Transient state
 
-State that is stored in browser storages like local storage or session storage, e.g. user preferences, theme, etc. and which is managed by the NgRx state slices and effects
+Use transient state for values persisted in browser storage and synchronized by effects, e.g. user preferences, theme, etc.
 
 ```ts
 theme: 'light' | 'dark';
@@ -60,4 +60,3 @@ export interface UiError {
   details?: any;
 }
 ```
-

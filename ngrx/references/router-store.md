@@ -15,15 +15,14 @@ import { provideRouterStore, routerReducer } from '@ngrx/router-store';
 export function provideCore({ routes }: CoreOptions) {
   return [
     provideRouter(routes),
-    provideStore({
-      router: routerReducer,
-    }),
+    provideStore(),
+    provideState('router', routerReducer),
     provideRouterStore(),
   ];
 }
 ```
 
-If the app already calls `provideStore({})`, add the `router` reducer to that root store object. Keep `provideRouterStore()` in `core.ts`, not in lazy feature route providers.
+If the app already calls `provideStore()`, add the `router` reducer to that root store object. Keep `provideRouterStore()` in `core.ts`, not in lazy feature route providers.
 
 ## Router selector factories
 

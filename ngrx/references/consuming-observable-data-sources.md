@@ -2,9 +2,9 @@
 
 Sometimes, we need to consume data from services that we're not in control of (e.g. from a library, another team, etc.)
 
-Such services often deliver data as RxJS `Observable` or new Angular `Signal`, but these do not compose well with NgRx selectors
+Such services often deliver data as RxJS `Observable` or new Angular `Signal`, but these do not compose well with NgRx selectors.
 
-**We always want to turn every data source into an NgRx selector because that way it becomes SYNC and universally composable with other selectors**
+Turn external observable/signal data sources into state slices when they have to compose with application state: read with selectors, write with events/effects.
 
 ## Creating a thing state slice
 

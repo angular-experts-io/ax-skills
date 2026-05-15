@@ -14,13 +14,15 @@ Derived state that can be derived from existing state slices should always be de
 
 Container components often need to access state from more than one state slice and also often need derived state that is specific to the given container component.
 
+Create a dedicated selector for the container view model. Do not derive NgRx-backed view state in the component with local `computed()`; use local `computed()` only for "local UI" (component-local) signal state.
+
 The selector should live next to the component, so when we have a component called `SomeComponent` in the `some.component.ts` file (or sometimes just `some.ts`),
 create a selector file called `some.selectors.ts` and put the selector there.
 
 ```ts
 import { createSelector } from '@ngrx/store';
 
-export const selectSomeView = createSelector(
+export const selectSomeContainerView = createSelector(
   selectSomeStateA,
   selectSomeStateB,
   (stateA, stateB) => ({
@@ -53,11 +55,11 @@ export class SomeContainerComponent {
 When testing selectors, use minimal mocks and assert only the output of actual logic, e.g. derived state calculations.
 
 ```ts
-describe('selectSomeView', () => {
+describe('selectSomeContainerView', () => {
   it('should calculate someDerivedProp correctly', () => {
     const stateA = { /* ... */ };
     const stateB = { /* ... */ };
-    const result = selectSomeView.projector(stateA, stateB);
+    const result = selectSomeContainerView.projector(stateA, stateB);
     expect(result.someDerivedProp).toEqual(/* expected value based on stateA and stateB */);
   });
 });
