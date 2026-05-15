@@ -140,6 +140,19 @@ consumeInitialClientStateFromUrl = createEffect(() => {
 
 ## Navigation
 
+Perform programmatic navigation in effects.
+
+Use `{ dispatch: false }` when navigation is the final side effect.
+
+```ts
+navigateAfterSaveSuccess = createEffect(() => {
+  return this.#events.pipe(
+    ofType(<Key>Events.saveSuccess),
+    tap(({ id }) => this.#router.navigate(['../', id]))
+  );
+}, { dispatch: false });
+```
+
 ## Retrieving additional state that was NOT delivered by an event payload
 
 Effects are often triggered by events, and events have payloads, which are often sufficient for effect execution,
@@ -163,9 +176,56 @@ someEffect = createEffect(() => {
 
 ## Effects triggered by selectors
 
+Effects can be triggered by any observable source, e.g. timer for periodic work, resize events, or selector streams.
+
 ### Selector data change as an event
+
+Turn selector changes into events when a state change should trigger a side effect.
+
+Keep the selector specific and filter repeated or irrelevant values.
+
+```ts
+selectedProductIdChanged = createEffect(() => {
+  return this.#store.select(selectSelectedProductId).pipe(
+    distinctUntilChanged(),
+    map((productId) => <Key>Events.selectedProductIdChanged({ productId }))
+  );
+});
+```
 
 ### Feature independent reloading of data based on path params
 
+Use router-store selectors to trigger loading from path params without coupling it to a routed component.
+
+```ts
+selectedProductIdChangedFromUrl = createEffect(() => {
+  return this.#store.select(selectProductIdFromUrlPathParams).pipe(
+    distinctUntilChanged(),
+    map((productId) => ProductEvents.selectedProductIdChangedFromUrl({ productId }))
+  );
+});
+```
 
 ## Testing
+
+Test effects by triggering the source stream and asserting emitted events or side effects.
+
+Mock services, router, and Store selectors. Assert orchestration, not service internals.
+
+Use RxJS `TestScheduler`.
+
+```ts
+it('should load items successfully', () => {
+  scheduler.run(({ hot, cold, expectObservable }) => {
+    events = hot('-a', { a: <Key>Events.loadTriggered() });
+    mockService.load.mockReturnValue(cold('--a', { a: items }));
+  
+    expectObservable(effects.loadItems).toBe('---a', {
+      a: <Key>Events.loadSuccess({ items }),
+    });
+  });
+  
+  expect(mockService.load).toHaveBeenCalledTimes(1);
+  expect(mockService.load).toHaveBeenCalledWith(/* ... */);
+});
+```
