@@ -6,6 +6,20 @@ A curated collection of mostly handcrafted skills encoding more than a decade of
 
 ## Skills
 
+### [Angular Enterprise Architecture](angular-enterprise-architecture/SKILL.md)
+
+Guidance for building and evolving maintainable, extendable enterprise-grade Angular applications with a standalone-first architecture, isolated lazy business features, reusable ui and pattern building blocks, one-way dependency graph rules, and tooling-based automated architecture validation.
+
+Based on the [Angular Enterprise Architecture eBook](https://angularexperts.io/products/ebook-angular-enterprise-architecture/) by Tomas Trajan [@tomastrajan](https://x.com/tomastrajan), this skill translates the book's proven Angular architecture approach into agent-ready rules for new projects, existing project improvements, and long-term consistency across teams.
+
+Handles:
+
+- Placement decisions for `core`, `layout`, `ui`, `feature`, `pattern`, app/helper building blocks, and libraries.
+- Lazy feature isolation, nested lazy sub-features, and the extract-one-level-up rule.
+- Standardized building block definitions and dependency allow rules.
+- Reusable `eslint-plugin-boundaries` config for IDE and CI-based architecture validation.
+- Repeatable patterns for sharing code without breaking lazy loading, feature isolation, or the one-way dependency graph.
+
 ### [NgRx](ngrx/SKILL.md)
 
 Guidance for implementing and modifying NgRx state management in Angular applications.
