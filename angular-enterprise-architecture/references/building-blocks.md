@@ -6,9 +6,9 @@ Use this table as the standard format for folder placement and dependency decisi
 
 | Building Block | Folder / File Pattern | Purpose | Contents | May Consume | Must Not |
 | --- | --- | --- | --- | --- | --- |
-| `main` | `projects/<app>/src/main.ts` | Bootstrap only. | `bootstrapApplication(AppComponent, appConfig)`. | `app` of same app. | Business logic. |
-| `app` | `projects/<app>/src/app/app*.ts` | Eager shell wiring. | `app.component`, `app.config`, `app.routes`. | same app `core`, `layout`, first-level `feature-routes`. | Feature implementation. |
-| `core` | `projects/<app>/src/app/core/` | Eager root-injector logic. | `provideCore()`, global providers, guards, interceptors, root state, services, utilities. | `core`, `events`, `env`, external libs. | Components, directives, pipes, feature imports. |
+| `main` | `projects/<app>/src/main.ts` | Bootstrap only. | `bootstrapApplication(AppComponent, appConfig)`. | `app` of same app. | Business logic or provider composition. |
+| `app` | `projects/<app>/src/app/app*.ts` | Eager shell wiring. | `app.component`, `app.config`, `app.routes`; root app config delegates to `provideCore({ routes })`. | same app `core`, `layout`, first-level `feature-routes`. | Feature implementation or direct root provider composition outside `provideCore()`. |
+| `core` | `projects/<app>/src/app/core/` | Eager root-injector logic. | `provideCore(coreOptions)`, global providers, router registration, guards, interceptors, root state, services, utilities. | `core`, `events`, `env`, external libs. | Components, directives, pipes, feature imports. |
 | `layout` | `projects/<app>/src/app/layout/` | Eager visual frame around routed features. | Layout components, layout-only directives/pipes. | `core`, `ui`, rare `pattern`, `events`, `env`. | Feature implementation. |
 | `ui` | `projects/<app>/src/app/ui/` | Generic reusable template-context building blocks. | Standalone components, directives, pipes with inputs/outputs only. | `ui`, `env`, external libs. | Services, stores, selectors, `core`, `feature`, `pattern`. |
 | `feature` | `projects/<app>/src/app/feature/<name>/` | Isolated lazy business flow. | Routes, containers, UI local to the feature, services, state, lazy sub-features. | `core`, `ui`, `pattern`, same feature, `events`, `env`. | Sibling feature implementation. |
@@ -47,6 +47,42 @@ For a single-app workspace using `src/app`, simplify the matchers to the local f
 ## Eager Blocks
 
 Keep `core/` headless. Use `provideCore()` as the single place for application-wide providers and startup logic. Register Angular providers, third-party infrastructure providers, root state, and `ENVIRONMENT_INITIALIZER` there.
+
+Root app config, whether it lives in `app.config.ts` or temporarily in `main.ts`, must not compose root providers directly. It should pass routes and any future root configuration through a typed `CoreOptions` object:
+
+```ts
+export const appConfig: ApplicationConfig = {
+  providers: [provideCore({ routes })],
+};
+```
+
+Do not leave Angular or infrastructure providers next to `provideCore()` in root app config:
+
+```ts
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes),
+    provideCore(),
+  ],
+};
+```
+
+Define the options and provider composition in `core.ts` instead:
+
+```ts
+export interface CoreOptions {
+  routes: Routes;
+}
+
+export function provideCore(options: CoreOptions) {
+  return makeEnvironmentProviders([
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(options.routes),
+    // other root providers...
+  ]);
+}
+```
 
 Keep `layout/` visual. Layout may read core state such as auth/user state, use generic `ui/` components such as avatar/menu/button, and host router outlets. A layout importing a feature is an architecture bug because it pulls lazy code into the eager graph.
 
